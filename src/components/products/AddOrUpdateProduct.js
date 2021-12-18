@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { getCategories } from "../../redux/actions/categoryActions";
 import { saveProduct } from "../../redux/actions/productActions";
 import ProductDetail from "./ProductDetail";
-import {useParams} from "react-router-dom"
+import { useParams } from "react-router-dom";
 
 function AddOrUpdateProduct({
   products,
@@ -16,6 +16,8 @@ function AddOrUpdateProduct({
   ...props
 }) {
   const [product, setProduct] = useState({ ...props.product });
+  const [errors, setErrors] = useState({});
+
   useEffect(() => {
     if (categories.length === 0) {
       getCategories();
@@ -29,6 +31,45 @@ function AddOrUpdateProduct({
       ...previousProduct,
       [name]: name === "categoryId" ? parseInt(value, 10) : value,
     }));
+
+    validate(name,value);
+  }
+
+
+  function validate(name,value){
+    if (name === "productName" && value === "") {
+      setErrors((previousErrors) => ({
+        ...previousErrors,
+        productName: "Ürün ismi olmalıdır",
+      }));
+    } else {
+      setErrors((previousErrors) => ({ ...previousErrors, productName: "" }));
+    }
+    if(name === "unitPrice" && value === ""){
+      setErrors((previousErrors) => ({
+        ...previousErrors,
+        unitPrice: "Ürün fiyatı olmalıdır",
+      }));
+    }else {
+      setErrors((previousErrors) => ({ ...previousErrors, unitPrice: "" }));
+    }
+    if(name === "quantityPerUnit" && value === ""){
+      setErrors((previousErrors) => ({
+        ...previousErrors,
+        unitPrice: "Ürün adedi olmalıdır",
+      }));
+    }else {
+      setErrors((previousErrors) => ({ ...previousErrors, quantityPerUnit: "" }));
+    }
+    if(name === "unitsInStock" && value === ""){
+      setErrors((previousErrors) => ({
+        ...previousErrors,
+        unitsInStock: "Ürün stoğu olmalıdır",
+      }));
+    }else {
+      setErrors((previousErrors) => ({ ...previousErrors, unitsInStock: "" }));
+    }
+
   }
 
   function handleSave(event) {
@@ -43,6 +84,7 @@ function AddOrUpdateProduct({
       categories={categories}
       onChange={handleChange}
       onSave={handleSave}
+      errors={errors}
     />
   );
 }
@@ -53,7 +95,7 @@ export function getProductById(products, productId) {
 }
 
 function mapStateToProps(state, ownProps) {
-  const {productId} = useParams(ownProps);
+  const { productId } = useParams(ownProps);
   const product =
     productId && state.productListReducer.length > 0
       ? getProductById(state.productListReducer, productId)
@@ -61,8 +103,8 @@ function mapStateToProps(state, ownProps) {
   return {
     product,
     products: state.productListReducer,
-    categories: state.categoryListReducer
-  }
+    categories: state.categoryListReducer,
+  };
 }
 
 const mapDispatchToProps = {
